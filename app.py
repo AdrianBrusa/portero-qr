@@ -3,6 +3,9 @@ import requests
 
 app = Flask(__name__)
 
+# --- PEGA AQUÍ TU TOKEN GRATUITO DE NTFY (empieza con tk_) ---
+NTFY_TOKEN = "tk_7ekaywlb32lo8bqi9d2lhjz0wf14r"
+
 # Configuración de los 8 departamentos (Depto A a Depto H)
 DEPARTAMENTOS = {
     "1": {"nombre": "Depto A", "canal": "portero-edificio-depto-a"},
@@ -84,7 +87,9 @@ def llamar(id_depto):
     if id_depto in DEPARTAMENTOS:
         depto = DEPARTAMENTOS[id_depto]
         url = f"https://ntfy.sh/{depto['canal']}"
+
         headers = {
+            "Authorization": f"Bearer {NTFY_TOKEN}",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
             "Title": "Portero Digital",
             "Priority": "high",
@@ -118,6 +123,7 @@ def llamar(id_depto):
                 )
         except Exception as e:
             return jsonify({"status": "error", "message": str(e)}), 500
+
     return jsonify({"status": "error", "message": "No encontrado"}), 404
 
 
