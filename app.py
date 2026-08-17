@@ -84,8 +84,8 @@ def llamar(id_depto):
     if id_depto in DEPARTAMENTOS:
         depto = DEPARTAMENTOS[id_depto]
 
-        # SE CAMBIA EL DOMINIO DE ntfy.sh A ntfy.net PARA EVITAR EL BLOQUEO DE IP DE RENDER
-        url = f"https://ntfy.net/{depto['canal']}"
+        # SERVIDOR PÚBLICO COMUNITARIO ABIERTO DE NTFY
+        url = f"https://ntfy.adminforge.de/{depto['canal']}"
 
         headers = {
             "Title": "Portero Digital",
