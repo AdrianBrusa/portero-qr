@@ -3,15 +3,16 @@ import requests
 
 app = Flask(__name__)
 
+# Configuración de los 8 departamentos (Depto A a Depto H)
 DEPARTAMENTOS = {
-    "1": {"nombre": "Depto 1A", "canal": "portero-edificio-1a"},
-    "2": {"nombre": "Depto 1B", "canal": "portero-edificio-1b"},
-    "3": {"nombre": "Depto 2A", "canal": "portero-edificio-2a"},
-    "4": {"nombre": "Depto 2B", "canal": "portero-edificio-2b"},
-    "5": {"nombre": "Depto 3A", "canal": "portero-edificio-3a"},
-    "6": {"nombre": "Depto 3B", "canal": "portero-edificio-3b"},
-    "7": {"nombre": "Depto 4A", "canal": "portero-edificio-4a"},
-    "8": {"nombre": "Depto 4B", "canal": "portero-edificio-4b"},
+    "1": {"nombre": "Depto A", "canal": "portero-edificio-depto-a"},
+    "2": {"nombre": "Depto B", "canal": "portero-edificio-depto-b"},
+    "3": {"nombre": "Depto C", "canal": "portero-edificio-depto-c"},
+    "4": {"nombre": "Depto D", "canal": "portero-edificio-depto-d"},
+    "5": {"nombre": "Depto E", "canal": "portero-edificio-depto-e"},
+    "6": {"nombre": "Depto F", "canal": "portero-edificio-depto-f"},
+    "7": {"nombre": "Depto G", "canal": "portero-edificio-depto-g"},
+    "8": {"nombre": "Depto H", "canal": "portero-edificio-depto-h"},
 }
 
 HTML_INTEGRADO = """
@@ -38,7 +39,9 @@ HTML_INTEGRADO = """
 """
 
 for idx, info in DEPARTAMENTOS.items():
-    HTML_INTEGRADO += f'<button onclick="tocarTimbre(\'{idx}\')">{info["nombre"]}</button>\n'
+    HTML_INTEGRADO += (
+        f'<button onclick="tocarTimbre(\'{idx}\')">{info["nombre"]}</button>\n'
+    )
 
 HTML_INTEGRADO += """
     </div>
@@ -57,7 +60,7 @@ HTML_INTEGRADO += """
                         statusDiv.innerText = data.message + ' ✔';
                     } else {
                         statusDiv.style.color = '#dc3545'; 
-                        statusDiv.innerText = 'Error al llamar';
+                        statusDiv.innerText = (data.message || 'Error al llamar');
                     }
                 })
                 .catch(() => {
@@ -80,9 +83,9 @@ def home():
 def llamar(id_depto):
     if id_depto in DEPARTAMENTOS:
         depto = DEPARTAMENTOS[id_depto]
-        # CORRECCIÓN: Agregada la barra '/' entre el dominio y el canal
         url = f"https://ntfy.sh/{depto['canal']}"
         headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
             "Title": "Portero Digital",
             "Priority": "high",
             "Tags": "bell",
@@ -103,10 +106,14 @@ def llamar(id_depto):
                         "message": f"Llamando al {depto['nombre']}",
                     }
                 )
-        except Exception as e:
-            return jsonify({"status": "error", "message": str(e)}), 500
-    return jsonify({"status": "error", "message": "No encontrado"}), 404
-
-
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+            else:
+                return (
+                    jsonify(
+                        {
+                            "status": "error",
+                            "message": f"HTTP {res.status_code} desde ntfy",
+                        }
+                    ),
+                    500,
+                )
+        except Exception
