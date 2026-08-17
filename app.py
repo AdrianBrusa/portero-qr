@@ -1,12 +1,9 @@
-import time
 from flask import Flask, jsonify, request
 import requests
 
 app = Flask(__name__)
 
-# Configura tu token real de ntfy
-NTFY_TOKEN = "tk_7ekaywlb32lo8bqi9d2lhjz0wf14r"
-
+# Configuración de los 8 departamentos (Depto A a Depto H)
 DEPARTAMENTOS = {
     "1": {"nombre": "Depto A", "canal": "portero-edificio-depto-a"},
     "2": {"nombre": "Depto B", "canal": "portero-edificio-depto-b"},
@@ -86,28 +83,25 @@ def home():
 def llamar(id_depto):
     if id_depto in DEPARTAMENTOS:
         depto = DEPARTAMENTOS[id_depto]
-        url = f"https://ntfy.sh/{depto['canal']}"
+
+        # SE CAMBIA EL DOMINIO DE ntfy.sh A ntfy.net PARA EVITAR EL BLOQUEO DE IP DE RENDER
+        url = f"https://ntfy.net/{depto['canal']}"
+
         headers = {
-            "Authorization": f"Bearer {NTFY_TOKEN}",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
             "Title": "Portero Digital",
             "Priority": "high",
             "Tags": "bell",
         }
-        body_data = f"Están tocando el timbre en el {depto['nombre']}".encode(
-            "utf-8"
-        )
 
         try:
-            # Intento 1
-            res = requests.post(url, data=body_data, headers=headers, timeout=5)
-
-            # Si ntfy pide esperar por límite de ráfaga (429), se aguardan 2 segundos y reintenta
-            if res.status_code == 429:
-                time.sleep(2)
-                res = requests.post(
-                    url, data=body_data, headers=headers, timeout=5
-                )
+            res = requests.post(
+                url,
+                data=f"Están tocando el timbre en el {depto['nombre']}".encode(
+                    "utf-8"
+                ),
+                headers=headers,
+                timeout=5,
+            )
 
             if res.status_code == 200:
                 return jsonify(
